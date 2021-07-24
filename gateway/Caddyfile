@@ -1,0 +1,20 @@
+{
+    admin off
+    email bradley@bradleyjkemp.dev
+}
+
+sshca.bradleyjkemp.dev {
+    header {
+        Strict-Transport-Security max-age=31536000;
+        X-Content-Type-Options nosniff
+        X-Frame-Options DENY
+        Referrer-Policy no-referrer-when-downgrade
+    }
+    encode zstd gzip
+
+    try_files {path}.html {path}
+    file_server {
+        root /srv/
+        index index.html
+    }
+}

@@ -1,0 +1,19 @@
+volumes:
+  caddy-data:
+
+services:
+  ca:
+    build:
+      context: .
+      dockerfile: ./ca/Dockerfile
+    ports:
+      - "22:2222"
+  gateway:
+    volumes:
+      - "caddy-data:/data"
+    build:
+      context: .
+      dockerfile: ./gateway/Dockerfile
+    ports:
+      - "443:443"
+      - "80:80"

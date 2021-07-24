@@ -1,0 +1,13 @@
+**
+
+!go.sum
+!go.mod
+!ca
+!ca_key
+
+!ui
+ui/.cache
+ui/dist
+ui/node_modules
+
+!gateway

@@ -1,0 +1,175 @@
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="sshca.bradleyjkemp.dev">
+    <meta property="og:description" content="A free, Let's Encrypt-style certificate authority for SSH host certificates">
+    <meta property="og:image" content="https://sshca.bradleyjkemp.dev/ca_flow.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>A free, automated SSH Certificate Authority | sshca.bradleyjkemp.dev</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔐</text></svg>">
+    <link rel="stylesheet" href="style.scss">
+    <link rel="stylesheet" href="~/node_modules/prismjs/themes/prism-tomorrow.css">
+    <link rel="stylesheet" href="~/node_modules/prismjs/plugins/command-line/prism-command-line.css">
+    <script src="index.js"></script>
+    <script src="~/node_modules/prismjs/plugins/command-line/prism-command-line.js"></script>
+    <script src="~/node_modules/prismjs/plugins/normalize-whitespace/prism-normalize-whitespace.js"></script>
+    <link rel="stylesheet" href="~/node_modules/@fortawesome/fontawesome-free/css/all.css"/>
+    <script async defer data-domain="sshca.bradleyjkemp.dev" src="https://stats.bradleyjkemp.dev/js/plausible.js"></script>
+</head>
+<body>
+<nav class="navbar is-light" role="navigation" aria-label="main navigation">
+    <div class="navbar-brand">
+        <a class="navbar-item" href="/">
+            sshca.bradleyjkemp.dev
+        </a>
+        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+    </div>
+
+    <div id="navbarBasicExample" class="navbar-menu">
+        <div class="navbar-end">
+            <div class="navbar-item">
+                <div class="buttons">
+                    <a class="button is-link is-outlined" href="https://github.com/bradleyjkemp/sshca">
+                        <strong><span class="icon-text">
+                          <span>View the code</span>
+                          <span class="icon">
+                            <i class="fab fa-github"></i>
+                          </span>
+                        </span></strong>
+                    </a>
+                    <a class="button is-link is-outlined" href="https://twitter.com/bradleyjkemp">
+                        <strong><span class="icon-text">
+                          <span>Hear about my other projects</span>
+                          <span class="icon">
+                            <i class="fab fa-twitter"></i>
+                          </span>
+                        </span></strong>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</nav>
+<section class="hero is-info is-medium is-bold">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <h1 class="title">A free, automated SSH certificate authority</h1>
+        </div>
+    </div>
+</section>
+
+
+<div class="container mb-4">
+    <section class="articles shift-up">
+        <div class="column is-8 is-offset-2">
+            <div class="card block p-3">
+                <div class="card-content">
+                    <div class="content">
+                        <h2 class="has-text-centered">What is this?</h2>
+                        <p>This is a proof of concept of a completed automated Certificate Authority for SSH host certificates. It functions similarly to how <a href="https://letsencrypt.org/">Let's Encrypt</a> issues HTTPS certificates.</p>
+                        <p>When an SSH certificate is requested for a given public key and hostname, this service connects back to the hostname and validates that the public key matches.</p>
+                        <img class="image mx-auto" src="ca_flow.svg" alt="A sequence diagram of sshca.bradleyjkemp.dev issuing a SSH certificate."/>
+                        <div class="has-text-centered">
+                            <a class="button is-medium is-danger m-2" href="#howto">
+                                Give me a free SSH certificate! 📜
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="card block p-3">
+                <div class="card-content">
+                    <div class="content">
+                        <h2 class="has-text-centered">Why would I want an SSH host certificate?</h2>
+                        <p>You've probably seen a warning like this when connecting to an SSH server for the first time?</p>
+                        <pre class="language-plain"><code>
+                            The authenticity of host 'myhostname.com (65.21.244.91)' can't be established.
+                            RSA key fingerprint is SHA256:vgbDoWPuEOY+ea6uEahM1ZXSB2/nZ31NwhlxQvX+Dpw.
+                            Are you sure you want to continue connecting (yes/no/[fingerprint])?
+                        </code></pre>
+                        <p>This happens because, unlike HTTPS clients, SSH clients by default don't have any way to know whether an SSH key belongs to a given hostname or not. This means it's hard to tell if an attacker is intercepting your traffic.</p>
+                        <p>In the HTTPS world, this problem is solved using Certificate Authorities: if a Certificate Authority says a given key is valid for a given hostname, your browser trusts it.</p>
+                        <p>In the SSH world, this problem is usually solved using "trust on first use" (TOFU): the first time your client sees an SSH key, it asks you whether or not to trust it. But how are you supposed to know?</p>
+                        <p>But, there is basic support for SSH Certificate Authorities which is how this service works. This service will happily sign an SSH certificate for any public key <b>but</b> only if the hostname is running an SSH server advertising that public key.</p>
+                    </div>
+                </div>
+            </div>
+            <div id="howto" class="card block p-3">
+                <div class="card-content">
+                    <div class="content">
+                        <h2 class="has-text-centered">How to get an SSH host certificate</h2>
+                        <p>
+                            To get an SSH host certificate from this service you need to:
+                        </p>
+                        <ul>
+                            <li>be running a publicly accessible SSH server</li>
+                            <li>be able to run commands on your SSH server</li>
+                        </ul>
+                        <p>
+                            As long as you meet those simple requirements, getting a certificate is as easy as this:
+                        </p>
+                        <pre class="command-line language-bash" data-prompt="server $" data-output="1-4,6-9,11-12"><code>
+                            # Connect to sshca.bradleyjkemp.dev using:
+                            #  * your server's SSH key for authentication
+                            #  * your server's hostname as the user
+                            # If validation succeeds, an SSH certificate is printed out
+                            ssh -I /etc/ssh/host_key_here myhostname.com@sshca.bradleyjkemp.dev
+                            ssh-rsa-cert-v01@openssh.com AAAAHHNzaC1yc2EtY2VydC12MDFAb3BlbnNzaC5jb20AAAAgfzx+Vj9Q8xF5hmswsyZBdbT45MX+yPrZpMzk4tWt/poAAAADAQABAAABgQC3JTHTZLmH7LSPrIHZGkxf0fHQAOPtbXDkK3i+hPpAymPKFBJ2l0VTJMoCSriNahYmCnxppRr5v0FpgDJQO4loehXLWGSIY3yfwDSqV8eqgI1IKKRIYppFJdoSlVbqoW2T5FQsHCtwVs1EKh8T0p86iGO+E8J/VOYFrYWM2QuV9vEpOITQZf3r2nduu2DrMj2MTR6jUUe3jg5nEJqil95GTXO121JwuqtQjemoQA1NvYN7mSzeOVtEtIHetYiDBPrcxnkKer37MvX3CFeMGpfm9vdLe2zEQ3bmw2H2dVNt669X/5VZR3/coOpVRbwh/dmzknBT8eRmdD79HlMW+wttjYTNK0I2ybBAPyhciqr952LM+nG24sXY+SuPIenb6knDa4pV5h0k2n6UGt6ud77rCHP2cvE4bc7f1qLY7lXH2w5IpqvKfRNC1HNK1qrWRBURxaYjIVL883Rs+Q5ysPeYez6JxoHSJ34tUoY1nlGQN9VLPESCn/0YrTfJryk3n6MWlMHIAuLSZAAAAAIAAAAucXVlcnljYWwuY29tOiBpc3N1ZWQgYnkgc3NoY2EuYnJhZGxleWprZW1wLmRldgAAAAAAAAAAYPwpfv//////////AAAAAAAAAAAAAAAAAAABlwAAAAdzc2gtcnNhAAAAAwEAAQAAAYEAxk2XA506g7G7A2MPQNBVLXvKNPE9AbwjVuXNgz79GcPI4M3ng1wVst1QVieCiEpXBwfSbdXVWObtZuma33qzagPX3QVCi5QmHkSQOyBn/zuSy/PRXd2O81CbRckF23A5tYy4O2VcbArnf4ZJY/hsSTlMlkIFwzONxxfhIib/5tYB37dwczeB7BpcXD1A2HStxFjnq0YNQ7+V1kRdIbrhvraBtv40RyWUHNpFUTM8+4DNe5gA7lktk+2akeG1CLdxTDA2OeCuYoL6nen+03jnpP/OykOwL9xhwK5DPfuNonmkwz2D9UV3TysYdK1RuOajxGcqafvAO8ccg/4wsqdOanc1JxvHxDhWsGZs5aEonTVVyHecAp/R3pUwZywfJQJlibOph1eOxVR66VhAbikmTQnvenQoJgTmhsTii7hd03osanDnLkFvLogvCL2vpKdwfrvrTcKewOVYbgxvA4Gl7dw9rr+xpmJzZVtt626KhFKKGBEWSUtQeFvlvWzYNQVPAAABjwAAAAdzc2gtcnNhAAABgEGCs+UZ5CilZqhR/o3mj42zz3k49T6CbnzAeSVy81RH0MSi9cJEWoHTJG8jhVJ8TeZ8ve1bV9JGO3aa7LGBv7g2Ltn74miPNTLmzT3m3teAYdtIJk7v9CZmsnDOgoBbinlZElK2XpdTMLsl3G1lBCsxH3Nj08H05Ziu+kuirr+QyhlTExJProVMcnOdPhatzguWYBQRAbw++OsgNjxL+2lqltPYm1PtOUFJCDfpod3WWEPGSIaDzqETW/nB8B1hKpbadbdCLwjknGuPELm8gCV2q/9ulu6H8wCruBDj9hTRkGabBbi/ioVBFhtJSXWjcLTuSF55PWea2wECYoDPNGyiGWc91H/EPLEuXGUkZWPz4IYQIbrI/jXyqEgKxP1wUq2c1sEWFIdcuvIr/W2A8fVNKp87w860DFRVMVRyh02beq6SnpuNuEaWovymWGYiaxhj1X04iAJbUmnyqAaoQ5nKFt2u1IvpdRmIWqgGAtSw9DJf34RXXHHMvuI/sp6dAQ==
+                            Connection to sshca.bradleyjkemp.dev closed.
+
+                            # Write this certificate to a file and then tell your SSH daemon to use it
+                            echo HostCertificate /path/to/certificate.pub >> /etc/ssh/sshd_config
+
+                            # Reload your SSH daemon, and you're done 🎉
+                            systemctl restart sshd
+                        </code></pre>
+                        <p>To trust certificates issued by this authority you need to add this line to your <code>~/.ssh/known_hosts</code> file:</p>
+                        <pre class="language-plain"><code>
+                            # Trust certificates from sshca.bradleyjkemp.dev for the specific host "myhostname.com"
+                            @cert-authority myhostname.com ecdsa-sha2-nistp521 AAAAE2VjZHNhLXNoYTItbmlzdHA1MjEAAAAIbmlzdHA1MjEAAACFBAE7nIMCoR2J6nBuix8FjzXpVLH13XIQexB2U7RlemVqu8jwP9QjqgJueJsxwaif4lsMDiQqpMEk2h3zOvm eqFzQ6wEVdmDKg8qeFP5bPPWMH28xZmsluTJ1tBbmgvtvdbkGPug+UF55SN2Ec04UW8RrjMIGTxjqEVvcVO8Rbh/sECvKBQ==
+                        </code></pre>
+                    </div>
+                </div>
+            </div>
+            <div class="card block p-3">
+                <div class="card-content">
+                    <div class="content">
+                        <h2 class="has-text-centered">Should I trust this service?</h2>
+                        <h3>As an SSH server</h3>
+                        <p>Why not? Certificates issued by this service are completely harmless.</p>
+                        <p>All this service does is take your SSH public key and sign it with my private key. This doesn't impact the security of your SSH server in any way</p>
+                        <h3>As an SSH client</h3>
+                        <p>Honestly? No, please don't blindly trust all certificates issued by this Certificate Authority.</p>
+                        <p>In the absolute worst case scenario where all of the following are true:</p>
+                        <ul>
+                            <li>you've trusted sshca.bradleyjkemp.dev certificates for a host</li>
+                            <li><b>and</b> this server gets compromised</li>
+                            <li><b>and</b> an attacker is on the same network as you
+                        </ul>
+                        <p>then the attacker would be able to intercept any of your SSH traffic to hosts you've trusted. So basically: don't blindly trust all certificates issued by this service.</p>
+                        <p>
+                            Having said that, using this service as a second layer of verification is totally fine.
+                            You can just treat certificates issued by this service as an attestation that this service has seen a hostname presenting a given public key.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<footer class="footer">
+    <div class="content has-text-centered">
+        <p>
+            <strong>sshca.bradleyjkemp.dev</strong> by <a href="https://bradleyjkemp.dev">Bradley Kemp</a>. The source code is licensed
+            <a href="https://github.com/bradleyjkemp/sshca/blob/main/LICENSE">MIT</a>.
+        </p>
+    </div>
+</footer>
+</body>
+</html>

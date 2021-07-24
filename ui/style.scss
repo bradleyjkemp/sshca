@@ -1,0 +1,12 @@
+@import "~bulma/sass/utilities/initial-variables";
+@import "~bulmaswatch/journal/_variables";
+@import "~bulma";
+@import "~bulmaswatch/journal/_overrides";
+
+.hero {
+  min-height: 250px;
+}
+
+.shift-up {
+  margin-top: -100px;
+}
