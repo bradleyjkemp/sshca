@@ -10,7 +10,7 @@
     "bulma": "^0.9.3",
     "bulmaswatch": "^0.8.1",
     "highlight.js": "^11.1.0",
-    "prismjs": "^1.24.1",
+    "prismjs": "^1.25.0",
     "@fortawesome/fontawesome-free": "^5.15.3"
   },
   "devDependencies": {
